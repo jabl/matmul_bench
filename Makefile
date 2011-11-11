@@ -1,12 +1,11 @@
-.SUFFIXES: .f90
-
 FC := gfortran
 
-FFLAGS := -O3 -march=native -g
+FFLAGS := -O3 -march=native -g -ffpe-trap=invalid,zero,overflow
 LIBS := -lrt -lblas
 
-matmul_bench: matmul_bench.o
-	$(FC) -o matmul_bench matmul_bench.o $(LIBS)
+%.o: %.f90
+	$(FC) $(FFLAGS) -c $<
 
-matmul_bench.o:
-	$(FC) $(FFLAGS) -c $*.f90
+matmul_bench: matmul_bench.o
+	$(FC) -o matmul_bench $< $(LIBS)
+
