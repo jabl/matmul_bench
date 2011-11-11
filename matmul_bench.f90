@@ -5,7 +5,8 @@ program matmul_bench
   implicit none
 
   integer, parameter :: sp = selected_real_kind(4), &
-       dp = selected_real_kind(15)
+       dp = selected_real_kind(15), &
+       i64 = selected_int_kind(18)
 
   call runsbench (2500)
   call rundbench (2500)
@@ -126,19 +127,19 @@ contains
     real(sp), intent(inout) :: res(:,:)
     integer, intent(in) :: loop
     real(dp), intent(out) :: time
-    real(dp) :: t1, t2
+    integer(i64) :: t1, t2, rate
     integer :: i
 
     if (size (a, 1) < 300) then
        ! Do a dry run.
        res = matmul (a, b)
     end if
-    call cpu_time (t1)
+    call system_clock (t1, rate)
     do i = 1, loop
        res = matmul (a, b)
     end do
-    call cpu_time (t2)
-    time = t2 - t1
+    call system_clock (t2)
+    time = real((t2 - t1), dp) / rate
   end subroutine smatmul_timing
 
   ! Actual routine, and timing.
@@ -147,18 +148,18 @@ contains
     real(dp), intent(inout) :: res(:,:)
     integer, intent(in) :: loop
     real(dp), intent(out) :: time
-    real(dp) :: t1, t2
+    integer(i64) :: t1, t2, rate
     integer :: i
 
     if (size (a,1) < 300) then
        res = matmul (a, b)
     end if
-    call cpu_time (t1)
+    call system_clock (t1, rate)
     do i = 1, loop
        res = matmul (a, b)
     end do
-    call cpu_time (t2)
-    time = t2 - t1
+    call system_clock (t2)
+    time = real((t2 - t1), dp) / rate
   end subroutine dmatmul_timing
 
   ! Actual routine, and timing.
@@ -167,18 +168,18 @@ contains
     logical, intent(inout) :: res(:,:)
     integer, intent(in) :: loop
     real(dp), intent(out) :: time
-    real(dp) :: t1, t2
+    integer(i64) :: t1, t2, rate
     integer :: i
 
     if (size (a, 1) < 300) then
        res = matmul (a, b)
     end if
-    call cpu_time (t1)
+    call system_clock (t1, rate)
     do i = 1, loop
        res = matmul (a, b)
     end do
-    call cpu_time (t2)
-    time = t2 - t1
+    call system_clock (t2)
+    time = real((t2 - t1), dp) / rate
   end subroutine lmatmul_timing
 
   subroutine sgemm_timing (n, a, b, res, loop, time)
@@ -186,7 +187,7 @@ contains
     real(sp), intent(inout) :: res(:,:)
     integer, intent(in) :: n, loop
     real(dp), intent(out) :: time
-    real(dp) :: t1, t2
+    integer(i64) :: t1, t2, rate
     integer :: i, nmax
 
     nmax = size (a, 1)
@@ -194,13 +195,13 @@ contains
        call sgemm('n','n',n, n, n, 1.0_sp, a(1,1), nmax, b(1,1), nmax, &
             0.0_sp, res(1,1), nmax)
     end if
-    call cpu_time (t1)
+    call system_clock (t1, rate)
     do i = 1, loop
        call sgemm('n','n',n, n, n, 1.0_sp, a(1,1), nmax, b(1,1), nmax, &
             0.0_sp, res(1,1), nmax)
     end do
-    call cpu_time (t2)
-    time = t2 - t1
+    call system_clock (t2)
+    time = real((t2 - t1), dp) / rate
   end subroutine sgemm_timing
 
   subroutine dgemm_timing (n, a, b, res, loop, time)
@@ -208,7 +209,7 @@ contains
     real(dp), intent(inout) :: res(:,:)
     integer, intent(in) :: n, loop
     real(dp), intent(out) :: time
-    real(dp) :: t1, t2
+    integer(i64) :: t1, t2, rate
     integer :: i, nmax
 
     nmax = size (a, 1)
@@ -216,13 +217,13 @@ contains
        call dgemm('n','n',n, n, n, 1.0_dp, a(1,1), nmax, b(1,1), nmax, &
             0.0_dp, res(1,1), nmax)
     end if
-    call cpu_time (t1)
+    call system_clock(t1, rate)
     do i = 1, loop
        call dgemm('n','n',n, n, n, 1.0_dp, a(1,1), nmax, b(1,1), nmax, &
             0.0_dp, res(1,1), nmax)
     end do
-    call cpu_time (t2)
-    time = t2 - t1
+    call system_clock(t2)
+    time = real((t2 - t1), dp) / rate
   end subroutine dgemm_timing
 
     
