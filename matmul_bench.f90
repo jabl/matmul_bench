@@ -7,19 +7,36 @@ program matmul_bench
   integer, parameter :: sp = selected_real_kind(4), &
        dp = selected_real_kind(15), &
        i64 = selected_int_kind(18)
+  integer :: cnt, ii, nmax
+  character(len=20) :: arg
+  real(dp) :: mult
+  
+  cnt = command_argument_count()
+  if (cnt >= 1) then
+     call get_command_argument(1, arg)
+     read(arg, *) nmax
+  else
+     nmax = 2500
+  end if
+  if (cnt >= 2) then
+     call get_command_argument(2, arg)
+     read(arg, *) mult
+  else
+     mult = 2
+  end if
 
-  call runsbench (2500)
-  call rundbench (2500)
-  call runlbench (2500)
+  call runsbench (nmax, mult)
+  call rundbench (nmax, mult)
+  call runlbench (nmax, mult)
 
 contains
 
   ! Run single precision matrix mult benchmark with different sized arrays.
-  subroutine runsbench (nmax)
+  subroutine runsbench (nmax, mult)
     integer, intent(in) :: nmax
     real(sp), allocatable, dimension(:,:) :: a, b, res
     integer :: n, loop
-    real(dp) :: time, flops, time2
+    real(dp) :: time, flops, time2, mult
 
     print *, ' Single precision matrix multiplication test'
     print *, ' Matrix side size    Matmul (Gflops/s)    sgemm (Gflops/s)'
@@ -37,18 +54,18 @@ contains
        print '(1X,I5,15X,F6.3,15X,F6.3)', n, &
             flops * real(loop, dp) / time / 1.0e9_dp, &
             flops * real (loop, dp) / time2 / 1.0e9_dp
-       n = n * 2
+       n = ceiling(n * mult)
        if (n > nmax) exit
     end do
     deallocate (a, b, res)
   end subroutine runsbench
 
   ! Run double precision matrix mult benchmark with different sized arrays.
-  subroutine rundbench (nmax)
+  subroutine rundbench (nmax, mult)
     integer, intent(in) :: nmax
     real(dp), allocatable, dimension(:,:) :: a, b, res
     integer :: n, loop
-    real(dp) :: time, flops, time2
+    real(dp) :: time, flops, time2, mult
 
     print *, ' Double precision matrix multiplication test'
     print *, ' Matrix side size    Matmul (Gflops/s)    dgemm (Gflops/s)'
@@ -66,19 +83,19 @@ contains
        print '(1X,I5,15X,F6.3,15X,F6.3)', n, &
             flops * real(loop, dp) / time / 1.0e9_dp, &
             flops * real (loop, dp) / time2 / 1.0e9_dp
-       n = n * 2
+       n = ceiling(n * mult)
        if (n > nmax) exit
     end do
     deallocate (a, b, res)
   end subroutine rundbench
 
   ! Run logical matrix mult benchmark with different sized arrays.
-  subroutine runlbench (nmax)
+  subroutine runlbench (nmax, mult)
     integer, intent(in) :: nmax
     logical, allocatable, dimension(:,:) :: a, b, res
     real(dp), allocatable, dimension(:,:) :: rtmp
     integer :: n, loop
-    real(dp) :: time, ops
+    real(dp) :: time, ops, mult
 
     print *, ' Default kind logical matrix multiplication test'
     print *, ' Matrix side size    Matmul (Gops/s)'
@@ -101,7 +118,7 @@ contains
        call lmatmul_timing (a(1:n,1:n), b(1:n,1:n), res(1:n,1:n), loop, time)
        print '(1X,I5,15X,F7.3)', n, &
             ops * real(loop, dp) / time / 1.0e9_dp
-       n = n * 2
+       n = ceiling(n * mult)
        if (n > nmax) exit
     end do
     deallocate (a, b, res, rtmp)
