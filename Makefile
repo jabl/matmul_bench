@@ -9,3 +9,5 @@ LIBS := -lrt -lblas
 matmul_bench: matmul_bench.o
 	$(FC) -o matmul_bench $< $(LIBS)
 
+clean:
+	rm -rf matmul_bench matmul_bench.o
