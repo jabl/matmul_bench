@@ -39,8 +39,8 @@ contains
     real(dp) :: time, flops, time2, mult
 
     print *, ' Single precision matrix multiplication test'
-    print *, ' Matrix side size    Matmul (Gflops/s)    sgemm (Gflops/s)'
-    print *, ' ========================================================='
+    print *, ' Matrix size    Matmul (Gflops/s)     sgemm (Gflops/s)'
+    print *, ' ====================================================='
     n = 2
     allocate (a(nmax,nmax), b(nmax,nmax), res(nmax,nmax))
     call random_number (a)
@@ -51,7 +51,7 @@ contains
        call smatmul_timing (a(1:n,1:n), b(1:n,1:n), res(1:n,1:n), loop, time)
        res(1:n,1:n) = 0.0_sp
        call sgemm_timing (n, a, b, res, loop, time2)
-       print '(1X,I5,15X,F6.3,15X,F6.3)', n, &
+       print '(1X,I12,12X,F9.3,12X,F9.3)', n, &
             flops * real(loop, dp) / time / 1.0e9_dp, &
             flops * real (loop, dp) / time2 / 1.0e9_dp
        n = ceiling(n * mult)
@@ -68,8 +68,8 @@ contains
     real(dp) :: time, flops, time2, mult
 
     print *, ' Double precision matrix multiplication test'
-    print *, ' Matrix side size    Matmul (Gflops/s)    dgemm (Gflops/s)'
-    print *, ' ========================================================='
+    print *, ' Matrix size    Matmul (Gflops/s)     dgemm (Gflops/s)'
+    print *, ' ====================================================='
     n = 2
     allocate (a(nmax,nmax), b(nmax,nmax), res(nmax,nmax))
     call random_number (a)
@@ -80,7 +80,7 @@ contains
        call dmatmul_timing (a(1:n,1:n), b(1:n,1:n), res(1:n,1:n), loop, time)
        res(1:n,1:n) = 0.0_dp
        call dgemm_timing (n, a, b, res, loop, time2)
-       print '(1X,I5,15X,F6.3,15X,F6.3)', n, &
+       print '(1X,I12,12X,F9.3,12X,F9.3)', n, &
             flops * real(loop, dp) / time / 1.0e9_dp, &
             flops * real (loop, dp) / time2 / 1.0e9_dp
        n = ceiling(n * mult)
@@ -98,8 +98,8 @@ contains
     real(dp) :: time, ops, mult
 
     print *, ' Default kind logical matrix multiplication test'
-    print *, ' Matrix side size    Matmul (Gops/s)'
-    print *, ' ==================================='
+    print *, ' Matrix size    Matmul (Gops/s)'
+    print *, ' =============================='
     n = 2
     allocate (a(nmax,nmax), b(nmax,nmax), res(nmax,nmax), rtmp(nmax,nmax))
     call random_number (rtmp)
@@ -116,7 +116,7 @@ contains
        res(1:n,1:n) = .false.
        call loops (n, loop, ops)
        call lmatmul_timing (a(1:n,1:n), b(1:n,1:n), res(1:n,1:n), loop, time)
-       print '(1X,I5,15X,F7.3)', n, &
+       print '(1X,I12,10X,F9.3)', n, &
             ops * real(loop, dp) / time / 1.0e9_dp
        n = ceiling(n * mult)
        if (n > nmax) exit
